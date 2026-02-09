@@ -1,0 +1,107 @@
+.photo-stack {
+  --card-radius: 2px;
+  /* Layered shadows for physical photo depth: contact, lift, ambient */
+  --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.08),
+    0 4px 12px rgba(0, 0, 0, 0.1),
+    0 12px 28px rgba(0, 0, 0, 0.08),
+    0 24px 56px rgba(0, 0, 0, 0.06);
+  --offset-y: 22px;
+  --offset-x: 8px;
+  --scale-step: 0.04;
+  cursor: pointer;
+  width: 100%;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+  box-sizing: border-box;
+  position: relative;
+}
+
+.photo-stack--empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 50vh;
+  color: #888;
+  cursor: default;
+}
+
+.photo-stack__pile {
+  position: relative;
+  margin: 0 auto;
+  overflow: visible;
+  /* width, maxWidth, maxHeight, aspectRatio set inline from top image */
+}
+
+.photo-stack__card {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  height: auto;
+  /* Each card uses its own aspect-ratio (inline) for a varied stack */
+  transform: translate(-50%, -50%)
+    translate(calc(var(--stack-pos) * var(--offset-x)), calc(var(--stack-pos) * var(--offset-y)))
+    translate(var(--rand-x, 0), var(--rand-y, 0))
+    scale(calc(1 - var(--stack-pos) * var(--scale-step)))
+    rotate(var(--rotation, 0deg));
+  transform-origin: center center;
+  border-radius: var(--card-radius);
+  overflow: hidden;
+  /* Deeper shadow for cards further back = more depth in the stack */
+  box-shadow: 0 1px 3px rgba(0, 0, 0, calc(0.06 + var(--stack-pos) * 0.015)),
+    0 4px 14px rgba(0, 0, 0, calc(0.08 + var(--stack-pos) * 0.02)),
+    0 12px 32px rgba(0, 0, 0, calc(0.06 + var(--stack-pos) * 0.015)),
+    0 28px 64px rgba(0, 0, 0, calc(0.05 + var(--stack-pos) * 0.01));
+  background: #1a1a1a;
+  transition: transform 0.35s ease, box-shadow 0.35s ease;
+  user-select: none;
+}
+
+.photo-stack__card:hover {
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1),
+    0 8px 24px rgba(0, 0, 0, 0.14),
+    0 20px 48px rgba(0, 0, 0, 0.1),
+    0 40px 80px rgba(0, 0, 0, 0.08);
+}
+
+/* Image keeps its natural aspect ratio; never stretched. Card is sized to match (via aspectRatio). */
+.photo-stack__card img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+  display: block;
+  pointer-events: none;
+  image-orientation: from-image;
+  /* Prevent any stretch: fit within card while preserving natural dimensions */
+  max-width: 100%;
+  max-height: 100%;
+}
+
+.photo-stack__meta {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  padding: 0 1rem;
+  box-sizing: border-box;
+}
+
+.photo-stack__hint {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #6b6b6b;
+}
+
+.photo-stack__count {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #6b6b6b;
+  font-variant-numeric: tabular-nums;
+}
