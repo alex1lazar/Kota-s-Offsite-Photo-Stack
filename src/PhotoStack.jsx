@@ -1,40 +1,114 @@
-import { useState, useEffect, useCallback, useMemo } from 'react'
-import './PhotoStack.css'
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 
 const STACK_SIZE = 11 // 1 current + 10 behind
-// Discrete angles so we get a real mix of left/right tilt, not a gradual trend
+// Slight tilt angles (degrees) so layers have a mix of left/right tilt
 const ROTATION_ANGLES = [-3, -2, -1, 0, 1, 2, 3]
 
-// Stable random rotation per image: one of [-3,-2,-1,0,1,2,3]°. Keyed by src so it never changes on re-render.
-function useRotationBySrc(images) {
-  return useMemo(() => {
-    const map = {}
-    images.forEach((src) => {
-      map[src] = ROTATION_ANGLES[Math.floor(Math.random() * ROTATION_ANGLES.length)]
-    })
-    return map
-  }, [images])
-}
-
-// Random px offset per stack position (±10–20px), stable so each position keeps the same offset.
-function useStackPositionOffsets() {
+/**
+ * One random rotation and one random (x,y) offset per stack position.
+ * Position 0 = front card (no rotation, no offset). Positions 1..N = behind (random each).
+ * Stable across re-renders so the stack looks consistent.
+ */
+function useStackTransforms() {
   return useMemo(() =>
-    Array.from({ length: STACK_SIZE }, () => {
+    Array.from({ length: STACK_SIZE }, (_, i) => {
+      if (i === 0) {
+        return { rotationDeg: 0, offsetX: 0, offsetY: 0 }
+      }
       const sign = () => (Math.random() > 0.5 ? 1 : -1)
-      const px = () => sign() * (10 + Math.random() * 10)
-      return { x: px(), y: px() }
+      return {
+        rotationDeg: ROTATION_ANGLES[Math.floor(Math.random() * ROTATION_ANGLES.length)],
+        offsetX: sign() * (6 + Math.random() * 12), // ±6..18px
+        offsetY: sign() * (6 + Math.random() * 12),
+      }
     }),
     []
   )
 }
 
-const DEFAULT_ASPECT_RATIO = 4 / 3
+// Fallback only before image dimensions are known (avoids layout jump)
+const FALLBACK_ASPECT_RATIO = 1
+
+const styles = {
+  stack: {
+    cursor: 'pointer',
+    width: '100%',
+    minHeight: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: '2rem 1rem',
+    boxSizing: 'border-box',
+    position: 'relative',
+  },
+  stackEmpty: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: '50vh',
+    color: '#888',
+    cursor: 'default',
+  },
+  pile: {
+    position: 'relative',
+    margin: '0 auto',
+    overflow: 'visible',
+  },
+  meta: {
+    width: '100%',
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '1rem',
+    marginTop: '4rem',
+    padding: '0 1rem',
+    boxSizing: 'border-box',
+  },
+  hint: { margin: '4rem', fontSize: '0.9rem', color: '#6b6b6b' },
+  count: { margin: 0, fontSize: '0.85rem', color: '#6b6b6b', fontVariantNumeric: 'tabular-nums' },
+  cardImg: {
+    width: '100%',
+    height: '100%',
+    objectFit: 'contain',
+    objectPosition: 'center',
+    display: 'block',
+    pointerEvents: 'none',
+    imageOrientation: 'from-image',
+    maxWidth: '100%',
+    maxHeight: '100%',
+  },
+}
+
+const SCALE_STEP = 0.04
+const CARD_RADIUS = 2
+
+function cardShadow(stackPos) {
+  const b = 0.06 + stackPos * 0.015
+  const c = 0.08 + stackPos * 0.02
+  const d = 0.06 + stackPos * 0.015
+  const e = 0.05 + stackPos * 0.01
+  return `0 1px 3px rgba(0,0,0,${b}), 0 4px 14px rgba(0,0,0,${c}), 0 12px 32px rgba(0,0,0,${d}), 0 28px 64px rgba(0,0,0,${e})`
+}
 
 export default function PhotoStack({ images = [] }) {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [aspectRatios, setAspectRatios] = useState({})
-  const rotationBySrc = useRotationBySrc(images)
-  const positionOffsets = useStackPositionOffsets()
+  const [pileSize, setPileSize] = useState({ w: 0, h: 0 })
+  const [hoverCard, setHoverCard] = useState(null)
+  const pileRef = useRef(null)
+  useEffect(() => {
+    const el = pileRef.current
+    if (!el) return
+    const ro = new ResizeObserver(([entry]) => {
+      const { width, height } = entry.contentRect
+      setPileSize((s) => (s.w === width && s.h === height ? s : { w: width, h: height }))
+    })
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [])
+  const stackTransforms = useStackTransforms()
 
   const handleImageLoad = useCallback((e) => {
     const img = e.target
@@ -51,12 +125,10 @@ export default function PhotoStack({ images = [] }) {
     }
   }, [])
 
-  const topAspectRatio = aspectRatios[images[currentIndex]] ?? DEFAULT_ASPECT_RATIO
-
   if (!images.length) {
     return (
-      <div className="photo-stack photo-stack--empty">
-        <p>No photos to display.</p>
+      <div style={styles.stackEmpty}>
+        <p style={styles.hint}>No photos to display.</p>
       </div>
     )
   }
@@ -108,46 +180,66 @@ export default function PhotoStack({ images = [] }) {
   }, [cycleToNext, cycleToPrev])
 
   return (
-    <div className="photo-stack" onClick={cycleToNext}>
-      <div
-        className="photo-stack__pile"
-        style={{
-          aspectRatio: topAspectRatio,
-          width: `min(90vw, calc(85vh * ${topAspectRatio}))`,
-          maxWidth: '65vw',
-          maxHeight: '65vh',
-        }}
-      >
-        {visibleImages.map(({ src, stackPosition }) => (
-          <div
-            key={`${src}-${stackPosition}-${currentIndex}`}
-            className="photo-stack__card"
-            style={{
-              '--stack-pos': stackPosition,
-              '--rotation': stackPosition === 0 ? '0deg' : `${rotationBySrc[src] ?? 0}deg`,
-              '--rand-x': `${positionOffsets[stackPosition].x}px`,
-              '--rand-y': `${positionOffsets[stackPosition].y}px`,
-              aspectRatio: aspectRatios[src] ?? DEFAULT_ASPECT_RATIO,
-              zIndex: STACK_SIZE - stackPosition,
-            }}
-          >
-            <img
-              src={src}
-              alt=""
-              loading="lazy"
-              draggable={false}
-              onLoad={handleImageLoad}
-            />
-          </div>
-        ))}
-      </div>
-      <div className="photo-stack__meta">
-        <p className="photo-stack__hint">
-         Scroll, click, or use arrows to navigate
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', minHeight: '100%' }}>
+      <div style={styles.stack} onClick={cycleToNext}>
+      <p style={styles.hint}>Scroll, click, or use arrows to navigate</p>
+        <div
+          ref={pileRef}
+          style={{
+            ...styles.pile,
+            width: '100%',
+            height: '100%',
+            maxWidth: '65vw',
+            maxHeight: '50vh',
+          }}
+        >
+        {visibleImages.map(({ src, stackPosition }) => {
+          const ar = aspectRatios[src] ?? FALLBACK_ASPECT_RATIO
+          const { w, h } = pileSize
+          const cardW = w && h ? Math.min(w, h * ar) : '100%'
+          const cardH = w && h ? Math.min(h, w / ar) : '100%'
+          const t = stackTransforms[stackPosition]
+          const scale = 1
+          const isHover = hoverCard === stackPosition
+          return (
+            <div
+              key={`${src}-${stackPosition}-${currentIndex}`}
+              style={{
+                position: 'absolute',
+                left: '50%',
+                top: '50%',
+                width: cardW,
+                height: cardH,
+                transform: `translate(-50%, -50%) translate(${t.offsetX}px, ${t.offsetY}px) scale(${scale}) rotate(${t.rotationDeg}deg)`,
+                transformOrigin: 'center center',
+                borderRadius: CARD_RADIUS,
+                overflow: 'hidden',
+                boxShadow: cardShadow(stackPosition, isHover),
+                background: '#1a1a1a',
+                transition: 'transform 0.35s ease, box-shadow 0.35s ease',
+                userSelect: 'none',
+                zIndex: STACK_SIZE - stackPosition,
+              }}
+              onMouseEnter={() => setHoverCard(stackPosition)}
+              onMouseLeave={() => setHoverCard(null)}
+            >
+              <img
+                src={src}
+                alt=""
+                loading="lazy"
+                draggable={false}
+                onLoad={handleImageLoad}
+                style={styles.cardImg}
+              />
+            </div>
+          )
+        })}
+        </div>
+        <div style={styles.meta}>
+        <p style={styles.count} aria-live="polite">
+          {currentIndex + 1} of {images.length}
         </p>
-        <p className="photo-stack__count" aria-live="polite">
-        {currentIndex + 1} of {images.length}
-        </p>
+        </div>
       </div>
     </div>
   )
