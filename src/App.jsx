@@ -1,23 +1,29 @@
 import PhotoStack from './PhotoStack'
 import photoPaths from './photoPaths.json'
-import './App.css'
 
 function App() {
   return (
-    <main className="app">
-      <div className="app__container">
-        <aside className="app__left">
-          <span className="app__icon" aria-hidden>＊</span>
-          <h1 className="app__title">Kota's 2026 offsite</h1>
-          <p className="app__meta">Marrakesh, Morocco</p>
-          <p className="app__meta">43 people, 3 days</p>
-          <nav className="app__view">
-            <span className="app__view--active">STACK</span>
-            <span>GRID</span>
+    <main className="min-h-screen w-full box-border">
+      <div className="max-w-[1220px] w-full mx-auto flex flex-row min-h-screen">
+        <aside className="w-[33%] min-w-[280px] py-10 px-8 flex flex-col justify-center gap-2 text-left font-basteleur">
+          <span className="text-xl text-gray-800 mb-1" aria-hidden>＊</span>
+          <h1 className="m-0 text-[1.15rem] font-bold text-gray-900 tracking-tight mt-16 mb-4">
+            Kota's 2026 offsite
+          </h1>
+          <p className="m-0 text-base font-normal text-gray-800">Marrakesh, Morocco</p>
+          <p className="m-0 text-base font-normal text-gray-800">43 people, 3 days</p>
+          <nav className="mt-6 text-[0.95rem] font-normal text-gray-800 mb-16">
+            <span className="underline font-semibold">STACK</span>
+            <span className="ml-4">GRID</span>
           </nav>
-          <a href="#join" className="app__cta">Join our team</a>
+          <a
+            href="#join"
+            className="mt-6 pt-0 text-[0.95rem] font-bold text-[#912ae5] underline hover:text-[#7a14b3]"
+          >
+            Join our team
+          </a>
         </aside>
-        <section className="app__right">
+        <section className="w-[67%] flex flex-col items-center justify-center min-h-screen relative font-basteleur">
           <PhotoStack images={photoPaths} />
         </section>
       </div>

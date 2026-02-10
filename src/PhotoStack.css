@@ -5,8 +5,6 @@
     0 4px 12px rgba(0, 0, 0, 0.1),
     0 12px 28px rgba(0, 0, 0, 0.08),
     0 24px 56px rgba(0, 0, 0, 0.06);
-  --offset-y: 22px;
-  --offset-x: 8px;
   --scale-step: 0.04;
   cursor: pointer;
   width: 100%;
@@ -33,23 +31,25 @@
   position: relative;
   margin: 0 auto;
   overflow: visible;
-  /* width, maxWidth, maxHeight, aspectRatio set inline from top image */
+  container-type: size;
+  /* width/height set inline so pile fits top image in 65vw×65vh */
 }
 
 .photo-stack__card {
+  --aspect-ratio: 1;
   position: absolute;
   left: 50%;
   top: 50%;
-  height: auto;
-  /* Each card uses its own aspect-ratio (inline) for a varied stack */
+  /* Size to fit inside pile while keeping --aspect-ratio (set inline per image) */
+  width: min(100cqw, calc(100cqh * var(--aspect-ratio)));
+  height: min(100cqh, calc(100cqw / var(--aspect-ratio)));
+  /* Center card, then small random offset, scale for depth, then tilt — keeps stack centered */
   transform: translate(-50%, -50%)
-    translate(calc(var(--stack-pos) * var(--offset-x)), calc(var(--stack-pos) * var(--offset-y)))
-    translate(var(--rand-x, 0), var(--rand-y, 0))
+    translate(var(--offset-x, 0), var(--offset-y, 0))
     scale(calc(1 - var(--stack-pos) * var(--scale-step)))
     rotate(var(--rotation, 0deg));
   transform-origin: center center;
   border-radius: var(--card-radius);
-  overflow: hidden;
   /* Deeper shadow for cards further back = more depth in the stack */
   box-shadow: 0 1px 3px rgba(0, 0, 0, calc(0.06 + var(--stack-pos) * 0.015)),
     0 4px 14px rgba(0, 0, 0, calc(0.08 + var(--stack-pos) * 0.02)),
