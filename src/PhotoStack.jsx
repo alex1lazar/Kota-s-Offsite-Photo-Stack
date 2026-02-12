@@ -94,11 +94,9 @@ const styles = {
 const CARD_RADIUS = 2
 
 function cardShadow(stackPos) {
-  const b = 0.06 + stackPos * 0.015
-  const c = 0.08 + stackPos * 0.02
-  const d = 0.06 + stackPos * 0.015
-  const e = 0.05 + stackPos * 0.01
-  return `0 1px 3px rgba(0,0,0,${b}), 0 4px 14px rgba(0,0,0,${c}), 0 12px 32px rgba(0,0,0,${d}), 0 28px 64px rgba(0,0,0,${e})`
+  const b = 0.04 + stackPos * 0.008
+  const c = 0.06 + stackPos * 0.012
+  return `0 1px 3px rgba(0,0,0,${b}), 0 4px 14px rgba(0,0,0,${c})`
 }
 
 export default function PhotoStack({ images = [] }) {
@@ -178,10 +176,10 @@ export default function PhotoStack({ images = [] }) {
   useEffect(() => {
     if (!imagesLen) return
     const handleKeyDown = (e) => {
-      if (e.key === 'ArrowRight') {
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
         e.preventDefault()
         cycleToNext()
-      } else if (e.key === 'ArrowLeft') {
+      } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
         e.preventDefault()
         cycleToPrev()
       }
@@ -297,6 +295,7 @@ export default function PhotoStack({ images = [] }) {
                     rotate: baseRotation,
                     scale: 1,
                     opacity: 1,
+                    filter: 'blur(0px)',
                   }}
                   animate={{
                     x: 0,
@@ -304,13 +303,15 @@ export default function PhotoStack({ images = [] }) {
                     rotate: baseRotation,
                     scale: 1,
                     opacity: 1,
+                    filter: 'blur(0px)',
                   }}
                   transition={{ duration: 0.35, ease: 'easeOut' }}
                   exit={{
                     scale: 1.15,
                     rotate: baseRotation + (navDir >= 0 ? -5 : 5),
                     opacity: 0,
-                    transition: { duration: 0.15, ease: 'easeOut' },
+                    filter: 'blur(24px)',
+                    transition: { duration: 0.2, ease: 'easeOut' },
                   }}
                   onMouseEnter={() => setHoverCard(0)}
                   onMouseLeave={() => setHoverCard(null)}
