@@ -17,7 +17,7 @@ function App() {
             <span className="ml-4">GRID</span>
           </nav>
           <a
-            href="#join"
+            href="https://jobs.ashbyhq.com/kota"
             className="mt-6 pt-0 text-[0.95rem] font-bold text-[#7A43E8] underline hover:text-[#7a14b3]"
           >
             Join our team
