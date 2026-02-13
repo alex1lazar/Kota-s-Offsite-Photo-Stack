@@ -1,29 +1,39 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
+import { AnimatePresence, motion as Motion } from 'framer-motion'
 
 const STACK_SIZE = 11 // 1 current + 10 behind
 // Slight tilt angles (degrees) so layers have a mix of left/right tilt
 const ROTATION_ANGLES = [-3, -2, -1, 0, 1, 2, 3]
 
-/**
- * One random rotation and one random (x,y) offset per stack position.
- * Position 0 = front card (no rotation, no offset). Positions 1..N = behind (random each).
- * Stable across re-renders so the stack looks consistent.
- */
-function useStackTransforms() {
-  return useMemo(() =>
-    Array.from({ length: STACK_SIZE }, (_, i) => {
-      if (i === 0) {
-        return { rotationDeg: 0, offsetX: 0, offsetY: 0 }
-      }
-      const sign = () => (Math.random() > 0.5 ? 1 : -1)
-      return {
-        rotationDeg: ROTATION_ANGLES[Math.floor(Math.random() * ROTATION_ANGLES.length)],
-        offsetX: sign() * (6 + Math.random() * 12), // ±6..18px
-        offsetY: sign() * (6 + Math.random() * 12),
-      }
-    }),
-    []
-  )
+// Deterministic PRNG (avoids Math.random during render; stable across re-renders)
+function mulberry32(seed) {
+  let t = seed >>> 0
+  return function rand() {
+    t += 0x6d2b79f5
+    let r = Math.imul(t ^ (t >>> 15), 1 | t)
+    r ^= r + Math.imul(r ^ (r >>> 7), 61 | r)
+    return ((r ^ (r >>> 14)) >>> 0) / 4294967296
+  }
+}
+
+function hashStringToSeed(str) {
+  // FNV-1a 32-bit
+  let h = 2166136261
+  for (let i = 0; i < str.length; i++) {
+    h ^= str.charCodeAt(i)
+    h = Math.imul(h, 16777619)
+  }
+  return h >>> 0
+}
+
+function makeCardTransform(src) {
+  const rand = mulberry32(hashStringToSeed(src))
+  return {
+    // Each card gets its own stable rotation; no movement in stack.
+    rotationDeg: ROTATION_ANGLES[Math.floor(rand() * ROTATION_ANGLES.length)],
+    offsetX: 0,
+    offsetY: 0,
+  }
 }
 
 // Fallback only before image dimensions are known (avoids layout jump)
@@ -81,23 +91,22 @@ const styles = {
   },
 }
 
-const SCALE_STEP = 0.04
 const CARD_RADIUS = 2
 
 function cardShadow(stackPos) {
-  const b = 0.06 + stackPos * 0.015
-  const c = 0.08 + stackPos * 0.02
-  const d = 0.06 + stackPos * 0.015
-  const e = 0.05 + stackPos * 0.01
-  return `0 1px 3px rgba(0,0,0,${b}), 0 4px 14px rgba(0,0,0,${c}), 0 12px 32px rgba(0,0,0,${d}), 0 28px 64px rgba(0,0,0,${e})`
+  const b = 0.04 + stackPos * 0.008
+  const c = 0.06 + stackPos * 0.012
+  return `0 1px 3px rgba(0,0,0,${b}), 0 4px 14px rgba(0,0,0,${c})`
 }
 
 export default function PhotoStack({ images = [] }) {
   const [currentIndex, setCurrentIndex] = useState(0)
+  const [navDir, setNavDir] = useState(1) // 1 = next, -1 = prev (used for exit rotate)
   const [aspectRatios, setAspectRatios] = useState({})
   const [pileSize, setPileSize] = useState({ w: 0, h: 0 })
   const [hoverCard, setHoverCard] = useState(null)
   const pileRef = useRef(null)
+  const imagesLen = images.length
   useEffect(() => {
     const el = pileRef.current
     if (!el) return
@@ -108,7 +117,14 @@ export default function PhotoStack({ images = [] }) {
     ro.observe(el)
     return () => ro.disconnect()
   }, [])
-  const stackTransforms = useStackTransforms()
+  const stackSize = Math.min(STACK_SIZE, imagesLen)
+  const cardTransformsBySrc = useMemo(() => {
+    const map = new Map()
+    for (const src of images) {
+      map.set(src, makeCardTransform(src))
+    }
+    return map
+  }, [images])
 
   const handleImageLoad = useCallback((e) => {
     const img = e.target
@@ -125,7 +141,54 @@ export default function PhotoStack({ images = [] }) {
     }
   }, [])
 
-  if (!images.length) {
+  const cycleToNext = useCallback(() => {
+    if (!imagesLen) return
+    setNavDir(1)
+    setCurrentIndex((prev) => (prev + 1) % imagesLen)
+  }, [imagesLen])
+
+  const cycleToPrev = useCallback(() => {
+    if (!imagesLen) return
+    setNavDir(-1)
+    setCurrentIndex((prev) => (prev - 1 + imagesLen) % imagesLen)
+  }, [imagesLen])
+
+  const handleWheel = useCallback(
+    (e) => {
+      if (!imagesLen) return
+      e.preventDefault()
+      if (e.deltaY > 0) {
+        cycleToNext()
+      } else if (e.deltaY < 0) {
+        cycleToPrev()
+      }
+    },
+    [imagesLen, cycleToNext, cycleToPrev]
+  )
+
+  useEffect(() => {
+    if (!imagesLen) return
+    window.addEventListener('wheel', handleWheel, { passive: false })
+    return () => window.removeEventListener('wheel', handleWheel)
+  }, [imagesLen, handleWheel])
+
+  // Keyboard navigation: left/right arrow keys
+  useEffect(() => {
+    if (!imagesLen) return
+    const handleKeyDown = (e) => {
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+        e.preventDefault()
+        cycleToNext()
+      } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+        e.preventDefault()
+        cycleToPrev()
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [imagesLen, cycleToNext, cycleToPrev])
+
+  if (!imagesLen) {
     return (
       <div style={styles.stackEmpty}>
         <p style={styles.hint}>No photos to display.</p>
@@ -134,50 +197,13 @@ export default function PhotoStack({ images = [] }) {
   }
 
   const visibleImages = []
-  for (let i = 0; i < STACK_SIZE; i++) {
-    const imageIndex = (currentIndex + i) % images.length
-    visibleImages.push({ src: images[imageIndex], stackPosition: i })
+  for (let i = 0; i < stackSize; i++) {
+    const imageIndex = (currentIndex + i) % imagesLen
+    visibleImages.push({ src: images[imageIndex], imageIndex, stackPosition: i })
   }
 
-  const cycleToNext = useCallback(() => {
-    setCurrentIndex((prev) => (prev + 1) % images.length)
-  }, [images.length])
-
-  const cycleToPrev = useCallback(() => {
-    setCurrentIndex((prev) => (prev - 1 + images.length) % images.length)
-  }, [images.length])
-
-  const handleWheel = useCallback(
-    (e) => {
-      e.preventDefault()
-      if (e.deltaY > 0) {
-        cycleToNext()
-      } else if (e.deltaY < 0) {
-        cycleToPrev()
-      }
-    },
-    [cycleToNext, cycleToPrev]
-  )
-
-  useEffect(() => {
-    window.addEventListener('wheel', handleWheel, { passive: false })
-    return () => window.removeEventListener('wheel', handleWheel)
-  }, [handleWheel])
-
-  // Keyboard navigation: left/right arrow keys
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (e.key === 'ArrowRight') {
-        e.preventDefault()
-        cycleToNext()
-      } else if (e.key === 'ArrowLeft') {
-        e.preventDefault()
-        cycleToPrev()
-      }
-    }
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [cycleToNext, cycleToPrev])
+  const top = visibleImages[0]
+  const rest = visibleImages.slice(1)
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', minHeight: '100%' }}>
@@ -193,47 +219,115 @@ export default function PhotoStack({ images = [] }) {
             maxHeight: '50vh',
           }}
         >
-        {visibleImages.map(({ src, stackPosition }) => {
-          const ar = aspectRatios[src] ?? FALLBACK_ASPECT_RATIO
-          const { w, h } = pileSize
-          const cardW = w && h ? Math.min(w, h * ar) : '100%'
-          const cardH = w && h ? Math.min(h, w / ar) : '100%'
-          const t = stackTransforms[stackPosition]
-          const scale = 1
-          const isHover = hoverCard === stackPosition
-          return (
-            <div
-              key={`${src}-${stackPosition}-${currentIndex}`}
-              style={{
-                position: 'absolute',
-                left: '50%',
-                top: '50%',
-                width: cardW,
-                height: cardH,
-                transform: `translate(-50%, -50%) translate(${t.offsetX}px, ${t.offsetY}px) scale(${scale}) rotate(${t.rotationDeg}deg)`,
-                transformOrigin: 'center center',
-                borderRadius: CARD_RADIUS,
-                overflow: 'hidden',
-                boxShadow: cardShadow(stackPosition, isHover),
-                background: '#1a1a1a',
-                transition: 'transform 0.35s ease, box-shadow 0.35s ease',
-                userSelect: 'none',
-                zIndex: STACK_SIZE - stackPosition,
-              }}
-              onMouseEnter={() => setHoverCard(stackPosition)}
-              onMouseLeave={() => setHoverCard(null)}
-            >
-              <img
-                src={src}
-                alt=""
-                loading="lazy"
-                draggable={false}
-                onLoad={handleImageLoad}
-                style={styles.cardImg}
-              />
-            </div>
-          )
-        })}
+          {rest.map(({ src, imageIndex, stackPosition }) => {
+            const ar = aspectRatios[src] ?? FALLBACK_ASPECT_RATIO
+            const { w, h } = pileSize
+            const cardW = w && h ? Math.min(w, h * ar) : '100%'
+            const cardH = w && h ? Math.min(h, w / ar) : '100%'
+            const t = cardTransformsBySrc.get(src) ?? { offsetX: 0, offsetY: 0, rotationDeg: 0 }
+            const isHover = hoverCard === stackPosition
+            return (
+              <div
+                key={imageIndex}
+                style={{
+                  position: 'absolute',
+                  left: '50%',
+                  top: '50%',
+                  translate: '-50% -50%',
+                  width: cardW,
+                  height: cardH,
+                  transformOrigin: 'center center',
+                  rotate: `${t.rotationDeg}deg`,
+                  borderRadius: CARD_RADIUS,
+                  overflow: 'hidden',
+                  boxShadow: cardShadow(stackPosition, isHover),
+                  background: '#1a1a1a',
+                  transition: 'box-shadow 0.35s ease',
+                  userSelect: 'none',
+                  zIndex: stackSize - stackPosition,
+                }}
+                onMouseEnter={() => setHoverCard(stackPosition)}
+                onMouseLeave={() => setHoverCard(null)}
+              >
+                <img
+                  src={src}
+                  alt=""
+                  loading="lazy"
+                  draggable={false}
+                  onLoad={handleImageLoad}
+                  style={styles.cardImg}
+                />
+              </div>
+            )
+          })}
+
+          <AnimatePresence initial={false}>
+            {top ? (() => {
+              const { src, imageIndex } = top
+              const ar = aspectRatios[src] ?? FALLBACK_ASPECT_RATIO
+              const { w, h } = pileSize
+              const cardW = w && h ? Math.min(w, h * ar) : '100%'
+              const cardH = w && h ? Math.min(h, w / ar) : '100%'
+              const baseRotation = cardTransformsBySrc.get(src)?.rotationDeg ?? 0
+              const isHover = hoverCard === 0
+              return (
+                <Motion.div
+                  key={`top-${imageIndex}`}
+                  style={{
+                    position: 'absolute',
+                    left: '50%',
+                    top: '50%',
+                    translate: '-50% -50%',
+                    width: cardW,
+                    height: cardH,
+                    transformOrigin: 'center center',
+                    borderRadius: CARD_RADIUS,
+                    overflow: 'hidden',
+                    boxShadow: cardShadow(0, isHover),
+                    background: '#1a1a1a',
+                    transition: 'box-shadow 0.35s ease',
+                    userSelect: 'none',
+                    zIndex: stackSize,
+                  }}
+                  initial={{
+                    x: 0,
+                    y: 0,
+                    rotate: baseRotation,
+                    scale: 1,
+                    opacity: 1,
+                    filter: 'blur(0px)',
+                  }}
+                  animate={{
+                    x: 0,
+                    y: 0,
+                    rotate: baseRotation,
+                    scale: 1,
+                    opacity: 1,
+                    filter: 'blur(0px)',
+                  }}
+                  transition={{ duration: 0.35, ease: 'easeOut' }}
+                  exit={{
+                    scale: 1.15,
+                    rotate: baseRotation + (navDir >= 0 ? -5 : 5),
+                    opacity: 0,
+                    filter: 'blur(24px)',
+                    transition: { duration: 0.2, ease: 'easeOut' },
+                  }}
+                  onMouseEnter={() => setHoverCard(0)}
+                  onMouseLeave={() => setHoverCard(null)}
+                >
+                  <img
+                    src={src}
+                    alt=""
+                    loading="lazy"
+                    draggable={false}
+                    onLoad={handleImageLoad}
+                    style={styles.cardImg}
+                  />
+                </Motion.div>
+              )
+            })() : null}
+          </AnimatePresence>
         </div>
         <div style={styles.meta}>
         <p style={styles.count} aria-live="polite">
