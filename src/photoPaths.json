@@ -1,65 +1,317 @@
 [
-  "/photos/A189EDB4-05C3-4B6C-B628-A8F667FAA0BB.jpg",
-  "/photos/IMG_5423.jpeg",
-  "/photos/IMG_5424.jpeg",
-  "/photos/IMG_5425.jpeg",
-  "/photos/IMG_5426.jpeg",
-  "/photos/IMG_5427.jpeg",
-  "/photos/IMG_5429.jpeg",
-  "/photos/IMG_5430.jpeg",
-  "/photos/IMG_5431.jpeg",
-  "/photos/IMG_5432.jpeg",
-  "/photos/IMG_5433.jpeg",
-  "/photos/IMG_5436.jpeg",
-  "/photos/IMG_5442.jpeg",
-  "/photos/IMG_5452.jpeg",
-  "/photos/IMG_5454.jpeg",
-  "/photos/IMG_5456.jpeg",
-  "/photos/IMG_5458.jpeg",
-  "/photos/IMG_5461.jpeg",
-  "/photos/IMG_5463.jpeg",
-  "/photos/IMG_5470.jpeg",
-  "/photos/IMG_5471.jpeg",
-  "/photos/IMG_5472.jpeg",
-  "/photos/IMG_5473.jpeg",
-  "/photos/IMG_5478.jpeg",
-  "/photos/IMG_5481.jpeg",
-  "/photos/IMG_5485.jpeg",
-  "/photos/IMG_5488.jpeg",
-  "/photos/IMG_5489.jpeg",
-  "/photos/IMG_5491.jpeg",
-  "/photos/IMG_5493.jpeg",
-  "/photos/IMG_5494.jpeg",
-  "/photos/IMG_5498.jpeg",
-  "/photos/IMG_5499.jpeg",
-  "/photos/IMG_5500.jpeg",
-  "/photos/IMG_5504.jpeg",
-  "/photos/IMG_5515.jpeg",
-  "/photos/IMG_5518.jpeg",
-  "/photos/IMG_5524.jpeg",
-  "/photos/IMG_5525.jpeg",
-  "/photos/IMG_5526.jpeg",
-  "/photos/IMG_5531.jpeg",
-  "/photos/IMG_5532.jpeg",
-  "/photos/IMG_5534.jpeg",
-  "/photos/IMG_5537.jpeg",
-  "/photos/IMG_5543.jpeg",
-  "/photos/IMG_5548.jpeg",
-  "/photos/IMG_5549.jpeg",
-  "/photos/IMG_5550.jpeg",
-  "/photos/IMG_5553.jpeg",
-  "/photos/IMG_5554.jpeg",
-  "/photos/IMG_5556.jpeg",
-  "/photos/IMG_5557.jpeg",
-  "/photos/IMG_5561.jpeg",
-  "/photos/IMG_5562.jpeg",
-  "/photos/IMG_5563.jpeg",
-  "/photos/IMG_5564.jpeg",
-  "/photos/IMG_5565.jpeg",
-  "/photos/IMG_5570.jpeg",
-  "/photos/IMG_5571.jpeg",
-  "/photos/IMG_5578.jpeg",
-  "/photos/IMG_5579.jpeg",
-  "/photos/IMG_5580.jpeg",
-  "/photos/IMG_5585.jpeg"
+  {
+    "path": "/photos/IMG_5424.jpeg",
+    "width": 1536,
+    "height": 2048
+  },
+  {
+    "path": "/photos/IMG_5427.jpeg",
+    "width": 1536,
+    "height": 2048
+  },
+  {
+    "path": "/photos/IMG_5429.jpeg",
+    "width": 1536,
+    "height": 2048
+  },
+  {
+    "path": "/photos/IMG_5431.jpeg",
+    "width": 1536,
+    "height": 2048
+  },
+  {
+    "path": "/photos/IMG_5433.jpeg",
+    "width": 1536,
+    "height": 2048
+  },
+  {
+    "path": "/photos/IMG_5442.jpeg",
+    "width": 1536,
+    "height": 2048
+  },
+  {
+    "path": "/photos/IMG_5461.jpeg",
+    "width": 1536,
+    "height": 2048
+  },
+  {
+    "path": "/photos/IMG_5481.jpeg",
+    "width": 1536,
+    "height": 2048
+  },
+  {
+    "path": "/photos/IMG_5499.jpeg",
+    "width": 2048,
+    "height": 1536
+  },
+  {
+    "path": "/photos/IMG_5515.jpeg",
+    "width": 1536,
+    "height": 2048
+  },
+  {
+    "path": "/photos/IMG_5518.jpeg",
+    "width": 1536,
+    "height": 2048
+  },
+  {
+    "path": "/photos/IMG_5524.jpeg",
+    "width": 1536,
+    "height": 2048
+  },
+  {
+    "path": "/photos/IMG_5526.jpeg",
+    "width": 1536,
+    "height": 2048
+  },
+  {
+    "path": "/photos/IMG_5537.jpeg",
+    "width": 1536,
+    "height": 2048
+  },
+  {
+    "path": "/photos/IMG_5543.jpeg",
+    "width": 1536,
+    "height": 2048
+  },
+  {
+    "path": "/photos/IMG_5553.jpeg",
+    "width": 1536,
+    "height": 2048
+  },
+  {
+    "path": "/photos/IMG_5556.jpeg",
+    "width": 1536,
+    "height": 2048
+  },
+  {
+    "path": "/photos/IMG_5562.jpeg",
+    "width": 1536,
+    "height": 2048
+  },
+  {
+    "path": "/photos/IMG_5578.jpeg",
+    "width": 1536,
+    "height": 2048
+  },
+  {
+    "path": "/photos/Morocco 2026 (1).jpg",
+    "width": 1536,
+    "height": 2048
+  },
+  {
+    "path": "/photos/Morocco 2026 (2).jpg",
+    "width": 1536,
+    "height": 2048
+  },
+  {
+    "path": "/photos/Morocco 2026 (3).jpg",
+    "width": 2048,
+    "height": 1152
+  },
+  {
+    "path": "/photos/Morocco 2026 (4).jpg",
+    "width": 1536,
+    "height": 2048
+  },
+  {
+    "path": "/photos/Morocco 2026 (5).jpg",
+    "width": 2048,
+    "height": 1152
+  },
+  {
+    "path": "/photos/Morocco 2026 (6).jpg",
+    "width": 2048,
+    "height": 1536
+  },
+  {
+    "path": "/photos/Morocco 2026 DSC04825.jpg",
+    "width": 2048,
+    "height": 1365
+  },
+  {
+    "path": "/photos/Morocco 2026 DSC04835.jpg",
+    "width": 2048,
+    "height": 1365
+  },
+  {
+    "path": "/photos/Morocco 2026 DSC04840.jpg",
+    "width": 2048,
+    "height": 1365
+  },
+  {
+    "path": "/photos/Morocco 2026 DSC04850.jpg",
+    "width": 2048,
+    "height": 1365
+  },
+  {
+    "path": "/photos/Morocco 2026 DSC04897.jpg",
+    "width": 1365,
+    "height": 2048
+  },
+  {
+    "path": "/photos/Morocco 2026 DSC04914.jpg",
+    "width": 2048,
+    "height": 1365
+  },
+  {
+    "path": "/photos/Morocco 2026 DSC04940.jpg",
+    "width": 2048,
+    "height": 1365
+  },
+  {
+    "path": "/photos/Morocco 2026 DSC04983.jpg",
+    "width": 2048,
+    "height": 1365
+  },
+  {
+    "path": "/photos/Morocco 2026 IMG 2606.JPG",
+    "width": 2048,
+    "height": 1536
+  },
+  {
+    "path": "/photos/Morocco 2026 IMG 3871.jpeg",
+    "width": 1536,
+    "height": 2048
+  },
+  {
+    "path": "/photos/Morocco 2026 IMG 3890.jpeg",
+    "width": 1536,
+    "height": 2048
+  },
+  {
+    "path": "/photos/Morocco 2026 IMG 4888.jpeg",
+    "width": 1536,
+    "height": 2048
+  },
+  {
+    "path": "/photos/Morocco 2026 IMG 7684.JPG",
+    "width": 1536,
+    "height": 2048
+  },
+  {
+    "path": "/photos/Morocco 2026 IMG 7801.JPG",
+    "width": 1536,
+    "height": 2048
+  },
+  {
+    "path": "/photos/Morocco 2026 IMG 7815.JPG",
+    "width": 1536,
+    "height": 2048
+  },
+  {
+    "path": "/photos/Morocco 2026 IMG 7854.JPG",
+    "width": 1536,
+    "height": 2048
+  },
+  {
+    "path": "/photos/Morocco 2026 IMG 7865.JPG",
+    "width": 1536,
+    "height": 2048
+  },
+  {
+    "path": "/photos/Morocco 2026 IMG 7871.JPG",
+    "width": 1536,
+    "height": 2048
+  },
+  {
+    "path": "/photos/Morocco 2026 IMG 7899.JPG",
+    "width": 1536,
+    "height": 2048
+  },
+  {
+    "path": "/photos/Morocco 2026 IMG 7918.JPG",
+    "width": 1536,
+    "height": 2048
+  },
+  {
+    "path": "/photos/Morocco 2026 IMG 9343.jpeg",
+    "width": 2048,
+    "height": 1536
+  },
+  {
+    "path": "/photos/Morocco 2026 IMG 9348.jpeg",
+    "width": 1536,
+    "height": 2048
+  },
+  {
+    "path": "/photos/Morocco 2026 Photo (1).jpg",
+    "width": 2048,
+    "height": 1536
+  },
+  {
+    "path": "/photos/Morocco 2026 R0000335.jpg",
+    "width": 1365,
+    "height": 2048
+  },
+  {
+    "path": "/photos/Morocco 2026 R0000337.jpg",
+    "width": 1365,
+    "height": 2048
+  },
+  {
+    "path": "/photos/Morocco 2026 R0000341.jpg",
+    "width": 2048,
+    "height": 1365
+  },
+  {
+    "path": "/photos/Morocco 2026 R0000374.jpg",
+    "width": 2048,
+    "height": 1365
+  },
+  {
+    "path": "/photos/Morocco 2026 R0000383.jpg",
+    "width": 1365,
+    "height": 2048
+  },
+  {
+    "path": "/photos/Morocco 2026 R0000388.jpg",
+    "width": 2048,
+    "height": 1365
+  },
+  {
+    "path": "/photos/Morocco 2026 R0000403.jpg",
+    "width": 1366,
+    "height": 2048
+  },
+  {
+    "path": "/photos/Morocco 2026 R0000434.jpg",
+    "width": 2048,
+    "height": 1365
+  },
+  {
+    "path": "/photos/Morocco 2026 R0000450.jpg",
+    "width": 1365,
+    "height": 2048
+  },
+  {
+    "path": "/photos/Morocco 2026 R0000458.jpg",
+    "width": 1365,
+    "height": 2048
+  },
+  {
+    "path": "/photos/Morocco 2026 R0000462.jpg",
+    "width": 2048,
+    "height": 1365
+  },
+  {
+    "path": "/photos/Morocco 2026 R0000475.jpg",
+    "width": 2048,
+    "height": 1365
+  },
+  {
+    "path": "/photos/Morocco 2026 R0000482.jpg",
+    "width": 2048,
+    "height": 1365
+  },
+  {
+    "path": "/photos/Morocco 2026 R406.jpg",
+    "width": 2048,
+    "height": 1365
+  },
+  {
+    "path": "/photos/Morocco 2026.jpg",
+    "width": 2048,
+    "height": 1536
+  }
 ]

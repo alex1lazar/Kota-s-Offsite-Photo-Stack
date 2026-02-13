@@ -1,7 +1,11 @@
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useMemo } from 'react'
 import { AnimatePresence, motion as Motion } from 'framer-motion'
 
+// Support both string[] and { path, width?, height? }[]
+const getPaths = (images) => images.map((img) => (typeof img === 'string' ? img : img.path))
+
 export default function PhotoGrid({ images = [] }) {
+  const paths = useMemo(() => getPaths(images), [images])
   const [selectedImage, setSelectedImage] = useState(null)
 
   const openOverlay = useCallback((src) => setSelectedImage(src), [])
@@ -16,7 +20,7 @@ export default function PhotoGrid({ images = [] }) {
     return () => window.removeEventListener('keydown', handleEscape)
   }, [selectedImage, closeOverlay])
 
-  if (!images.length) {
+  if (!paths.length) {
     return (
       <div className="flex items-center justify-center min-h-[50vh] text-gray-500">
         No photos to display.
@@ -51,7 +55,7 @@ export default function PhotoGrid({ images = [] }) {
           initial="hidden"
           animate="visible"
         >
-          {images.map((src) => (
+          {paths.map((src) => (
             <Motion.button
               type="button"
               key={src}

@@ -99,14 +99,31 @@ function cardShadow(stackPos) {
   return `0 1px 3px rgba(0,0,0,${b}), 0 4px 14px rgba(0,0,0,${c})`
 }
 
+// Normalize to { path, width?, height? }[] (supports legacy string[])
+function normalizeImages(images) {
+  return images.map((img) => (typeof img === 'string' ? { path: img } : img))
+}
+
 export default function PhotoStack({ images = [] }) {
+  const list = useMemo(() => normalizeImages(images), [images])
   const [currentIndex, setCurrentIndex] = useState(0)
   const [navDir, setNavDir] = useState(1) // 1 = next, -1 = prev (used for exit rotate)
   const [aspectRatios, setAspectRatios] = useState({})
   const [pileSize, setPileSize] = useState({ w: 0, h: 0 })
   const [hoverCard, setHoverCard] = useState(null)
   const pileRef = useRef(null)
-  const imagesLen = images.length
+  const imagesLen = list.length
+
+  const getAspectRatio = useCallback(
+    (item) => {
+      if (item.width != null && item.height != null && item.height > 0) {
+        return item.width / item.height
+      }
+      return aspectRatios[item.path] ?? FALLBACK_ASPECT_RATIO
+    },
+    [aspectRatios]
+  )
+
   useEffect(() => {
     const el = pileRef.current
     if (!el) return
@@ -120,11 +137,11 @@ export default function PhotoStack({ images = [] }) {
   const stackSize = Math.min(STACK_SIZE, imagesLen)
   const cardTransformsBySrc = useMemo(() => {
     const map = new Map()
-    for (const src of images) {
-      map.set(src, makeCardTransform(src))
+    for (const item of list) {
+      map.set(item.path, makeCardTransform(item.path))
     }
     return map
-  }, [images])
+  }, [list])
 
   const handleImageLoad = useCallback((e) => {
     const img = e.target
@@ -199,7 +216,8 @@ export default function PhotoStack({ images = [] }) {
   const visibleImages = []
   for (let i = 0; i < stackSize; i++) {
     const imageIndex = (currentIndex + i) % imagesLen
-    visibleImages.push({ src: images[imageIndex], imageIndex, stackPosition: i })
+    const item = list[imageIndex]
+    visibleImages.push({ src: item.path, item, imageIndex, stackPosition: i })
   }
 
   const top = visibleImages[0]
@@ -219,8 +237,8 @@ export default function PhotoStack({ images = [] }) {
             maxHeight: '50vh',
           }}
         >
-          {rest.map(({ src, imageIndex, stackPosition }) => {
-            const ar = aspectRatios[src] ?? FALLBACK_ASPECT_RATIO
+          {rest.map(({ src, item, imageIndex, stackPosition }) => {
+            const ar = getAspectRatio(item)
             const { w, h } = pileSize
             const cardW = w && h ? Math.min(w, h * ar) : '100%'
             const cardH = w && h ? Math.min(h, w / ar) : '100%'
@@ -263,8 +281,8 @@ export default function PhotoStack({ images = [] }) {
 
           <AnimatePresence initial={false}>
             {top ? (() => {
-              const { src, imageIndex } = top
-              const ar = aspectRatios[src] ?? FALLBACK_ASPECT_RATIO
+              const { src, item, imageIndex } = top
+              const ar = getAspectRatio(item)
               const { w, h } = pileSize
               const cardW = w && h ? Math.min(w, h * ar) : '100%'
               const cardH = w && h ? Math.min(h, w / ar) : '100%'
@@ -331,7 +349,7 @@ export default function PhotoStack({ images = [] }) {
         </div>
         <div style={styles.meta}>
         <p style={styles.count} aria-live="polite">
-          {currentIndex + 1} of {images.length}
+          {currentIndex + 1} of {list.length}
         </p>
         </div>
       </div>
