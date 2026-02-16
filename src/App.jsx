@@ -10,7 +10,7 @@ function App() {
   return (
     <main className="min-h-screen w-full box-border">
       <div className="max-w-[1220px] w-full mx-auto flex flex-row min-h-screen">
-        <aside className="w-[33%] min-w-[280px] py-10 px-8 flex flex-col justify-center gap-2 text-left font-basteleur">
+        <aside className="w-[30%] min-w-[280px] py-10 px-8 flex flex-col justify-center gap-2 text-left font-basteleur">
           <img src="/Symbol purple.svg" alt="Kota's Logo" className="w-8 h-8" />
           <h1 className="m-0 text-[1.15rem] font-bold text-gray-900 tracking-tight mt-16 mb-4">
             Kota's 2026 offsite
@@ -42,7 +42,7 @@ function App() {
             Join our team
           </a>
         </aside>
-        <section className="w-[67%] flex flex-col items-center justify-center min-h-screen relative font-basteleur overflow-hidden">
+        <section className="w-[70%] flex flex-col items-center justify-center min-h-screen relative font-basteleur">
           <AnimatePresence mode="wait" initial={false}>
             <Motion.div
               key={view}

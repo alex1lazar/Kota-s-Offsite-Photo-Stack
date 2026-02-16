@@ -44,4 +44,13 @@
   a:hover {
     @apply text-indigo-600;
   }
+
+  /* Hide scrollbar while keeping scroll behavior (e.g. PhotoGrid) */
+  .hide-scrollbar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
 }

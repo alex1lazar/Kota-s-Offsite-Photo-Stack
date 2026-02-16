@@ -2,6 +2,10 @@ import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { AnimatePresence, motion as Motion } from 'framer-motion'
 
 const STACK_SIZE = 11 // 1 current + 10 behind
+
+// Min ms between wheel-triggered steps (tune for trackpad/MX3: higher = slower)
+const WHEEL_THROTTLE_MS = 200
+
 // Slight tilt angles (degrees) so layers have a mix of left/right tilt
 const ROTATION_ANGLES = [-3, -2, -1, 0, 1, 2, 3]
 
@@ -112,6 +116,7 @@ export default function PhotoStack({ images = [] }) {
   const [pileSize, setPileSize] = useState({ w: 0, h: 0 })
   const [hoverCard, setHoverCard] = useState(null)
   const pileRef = useRef(null)
+  const lastWheelStepRef = useRef(0)
   const imagesLen = list.length
 
   const getAspectRatio = useCallback(
@@ -174,6 +179,9 @@ export default function PhotoStack({ images = [] }) {
     (e) => {
       if (!imagesLen) return
       e.preventDefault()
+      const now = Date.now()
+      if (now - lastWheelStepRef.current < WHEEL_THROTTLE_MS) return
+      lastWheelStepRef.current = now
       if (e.deltaY > 0) {
         cycleToNext()
       } else if (e.deltaY < 0) {
