@@ -48,9 +48,9 @@ export default function PhotoGrid({ images = [] }) {
 
   return (
     <>
-      <div className="w-full max-w-[65vw] max-h-[80vh] relative overflow-auto hide-scrollbar">
+      <div className="w-full max-h-[80vh] px-4 md:px-0 md:max-w-[65vw] relative overflow-auto hide-scrollbar">
         <Motion.div
-          className="w-full p-4 pb-4 grid grid-cols-3 sm:grid-cols-4 gap-x-1 gap-y-2"
+          className="w-full p-4 pb-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-x-1 gap-y-2"
           variants={container}
           initial="hidden"
           animate="visible"

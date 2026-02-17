@@ -43,6 +43,9 @@ function makeCardTransform(src) {
 // Fallback only before image dimensions are known (avoids layout jump)
 const FALLBACK_ASPECT_RATIO = 1
 
+// Scale factor for portrait images (height > width). 1 = no change; 1.2 = 20% larger.
+const PORTRAIT_SCALE = 1.15
+
 const styles = {
   stack: {
     cursor: 'pointer',
@@ -76,11 +79,11 @@ const styles = {
     alignItems: 'center',
     justifyContent: 'center',
     gap: '1rem',
-    marginTop: '4rem',
+    marginTop: '6rem',
     padding: '0 1rem',
     boxSizing: 'border-box',
   },
-  hint: { margin: '4rem', fontSize: '0.9rem', color: '#6b6b6b' },
+  hint: { margin: '6rem', fontSize: '0.9rem', color: '#6b6b6b' },
   count: { margin: 0, fontSize: '0.85rem', color: '#6b6b6b', fontVariantNumeric: 'tabular-nums' },
   cardImg: {
     width: '100%',
@@ -117,7 +120,10 @@ export default function PhotoStack({ images = [] }) {
   const [hoverCard, setHoverCard] = useState(null)
   const pileRef = useRef(null)
   const lastWheelStepRef = useRef(0)
+  const touchStartRef = useRef({ x: 0, y: 0 })
   const imagesLen = list.length
+
+  const SWIPE_THRESHOLD = 50
 
   const getAspectRatio = useCallback(
     (item) => {
@@ -197,6 +203,30 @@ export default function PhotoStack({ images = [] }) {
     return () => window.removeEventListener('wheel', handleWheel)
   }, [imagesLen, handleWheel])
 
+  const handleTouchStart = useCallback((e) => {
+    const t = e.touches[0]
+    if (t) touchStartRef.current = { x: t.clientX, y: t.clientY }
+  }, [])
+
+  const handleTouchEnd = useCallback(
+    (e) => {
+      if (!imagesLen) return
+      const t = e.changedTouches[0]
+      if (!t) return
+      const { x: startX, y: startY } = touchStartRef.current
+      const deltaX = t.clientX - startX
+      const deltaY = t.clientY - startY
+      if (Math.abs(deltaX) <= Math.abs(deltaY) || Math.abs(deltaX) < SWIPE_THRESHOLD) return
+      const now = Date.now()
+      if (now - lastWheelStepRef.current < WHEEL_THROTTLE_MS) return
+      lastWheelStepRef.current = now
+      e.preventDefault()
+      if (deltaX < 0) cycleToNext()
+      else cycleToPrev()
+    },
+    [imagesLen, cycleToNext, cycleToPrev]
+  )
+
   // Keyboard navigation: left/right arrow keys
   useEffect(() => {
     if (!imagesLen) return
@@ -232,24 +262,36 @@ export default function PhotoStack({ images = [] }) {
   const rest = visibleImages.slice(1)
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', minHeight: '100%' }}>
-      <div style={styles.stack} onClick={cycleToNext}>
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', minHeight: '100%', height: '100%' }}>
+      <div
+        style={{ ...styles.stack, flex: 1, minHeight: 0 }}
+        onClick={cycleToNext}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+        role="button"
+        tabIndex={0}
+        aria-label="Next photo (swipe or scroll)"
+      >
       <p style={styles.hint}>Scroll, click, or use arrows to navigate</p>
         <div
           ref={pileRef}
+          className="w-full max-w-[90vw] max-h-[60vh] md:max-w-[65vw] md:max-h-[50vh]"
           style={{
             ...styles.pile,
             width: '100%',
-            height: '100%',
-            maxWidth: '65vw',
-            maxHeight: '50vh',
+            flex: 1,
+            minHeight: 'min(55vh, 280px)',
           }}
         >
           {rest.map(({ src, item, imageIndex, stackPosition }) => {
             const ar = getAspectRatio(item)
             const { w, h } = pileSize
-            const cardW = w && h ? Math.min(w, h * ar) : '100%'
-            const cardH = w && h ? Math.min(h, w / ar) : '100%'
+            let cardW = w && h ? Math.min(w, h * ar) : '100%'
+            let cardH = w && h ? Math.min(h, w / ar) : '100%'
+            if (typeof cardW === 'number' && ar < 1) {
+              cardW *= PORTRAIT_SCALE
+              cardH *= PORTRAIT_SCALE
+            }
             const t = cardTransformsBySrc.get(src) ?? { offsetX: 0, offsetY: 0, rotationDeg: 0 }
             const isHover = hoverCard === stackPosition
             return (
@@ -292,8 +334,12 @@ export default function PhotoStack({ images = [] }) {
               const { src, item, imageIndex } = top
               const ar = getAspectRatio(item)
               const { w, h } = pileSize
-              const cardW = w && h ? Math.min(w, h * ar) : '100%'
-              const cardH = w && h ? Math.min(h, w / ar) : '100%'
+              let cardW = w && h ? Math.min(w, h * ar) : '100%'
+              let cardH = w && h ? Math.min(h, w / ar) : '100%'
+              if (typeof cardW === 'number' && ar < 1) {
+                cardW *= PORTRAIT_SCALE
+                cardH *= PORTRAIT_SCALE
+              }
               const baseRotation = cardTransformsBySrc.get(src)?.rotationDeg ?? 0
               const isHover = hoverCard === 0
               return (
