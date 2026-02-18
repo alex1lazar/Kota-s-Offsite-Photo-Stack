@@ -272,7 +272,8 @@ export default function PhotoStack({ images = [] }) {
         tabIndex={0}
         aria-label="Next photo (swipe or scroll)"
       >
-      <p style={styles.hint}>Scroll, click, or use arrows to navigate</p>
+      <p style={styles.hint} className="block md:hidden">Click to view pictures</p>
+      <p style={styles.hint} className="hidden md:block">Scroll, click, or use arrows to navigate</p>
         <div
           ref={pileRef}
           className="w-full max-w-[90vw] max-h-[60vh] md:max-w-[65vw] md:max-h-[50vh]"
