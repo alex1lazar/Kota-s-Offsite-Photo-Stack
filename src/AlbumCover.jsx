@@ -14,41 +14,38 @@ export default function AlbumCover({ coverImagePath = DEFAULT_COVER_IMAGE, onOpe
         Offsite in Marrakesh
       </h2>
 
-      {/* Book cover container: spine (left) + front. Total size 561×658, ratio preserved when smaller. */}
+      {/* Book cover container: front is full size; spine overlays left edge (fixed left, top-bottom). */}
       <div
-        className="album-cover-wrapper relative flex w-[561px] max-w-full rounded-tl-md rounded-tr-sm rounded-br-sm rounded-bl-md shadow-[0_1px_4px_0_rgba(129,113,91,0.05),0_3px_6px_0_rgba(129,113,91,0.08),0_24px_22px_0_rgba(129,113,91,0.12)] transition-transform transition-[box-shadow] duration-600ms ease-out group-hover:-translate-y-2 group-hover:shadow-[0_2px_8px_0_rgba(129,113,91,0.08),0_6px_12px_0_rgba(129,113,91,0.12),0_28px_26px_0_rgba(129,113,91,0.18)]"
+        className="album-cover-wrapper relative w-[561px] max-w-full rounded-tl-md rounded-tr-sm rounded-br-sm rounded-bl-md shadow-[0_1px_4px_0_rgba(129,113,91,0.05),0_3px_6px_0_rgba(129,113,91,0.08),0_24px_22px_0_rgba(129,113,91,0.12)] transition-transform transition-[box-shadow] duration-6480ms ease-out group-hover:-translate-y-2 group-hover:shadow-[0_2px_8px_0_rgba(129,113,91,0.06),0_6px_12px_0_rgba(129,113,91,0.08),0_28px_26px_0_rgba(129,113,91,0.16)]"
         style={{ aspectRatio: '561 / 658' }}
       >
-        {/* Spine (thicker left edge) */}
+        {/* Spine: fixed to left and top-bottom, overlays left 20px of the cover */}
         <div
-          className="album-cover-spine h-full shrink-0 rounded-l-md"
+          className="album-cover-spine absolute left-0 top-0 bottom-0 w-6 rounded-l-md z-10"
           style={{
-            width: '20px',
             backgroundColor: '#e8e2d8',
             boxShadow: 'inset -2px 0 8px rgba(0,0,0,0.06)',
           }}
         />
-        {/* Front cover with noise */}
+        {/* Front cover: full width, cream + grain */}
         <div
-          className="album-cover-front relative min-w-0 flex-1 rounded-tr-sm rounded-br-sm overflow-hidden flex flex-col items-center justify-start pt-8 pb-20 px-6 bg-[#F8EFDF]"
+          className="album-cover-front relative w-full h-full rounded-tr-sm rounded-br-sm overflow-hidden flex flex-col items-center justify-start pt-8 pb-20 px-6 bg-[#EDDCBF]"
         >
-          {/* Paper-like noise overlay: fine grain, warm brownish-gray speckles */}
-          <svg className="absolute inset-0 w-full h-full pointer-events-none" aria-hidden>
-            <filter id="album-cover-noise" x="0" y="0">
-              <feTurbulence type="fractalNoise" baseFrequency="0.92" numOctaves="4" result="noise" />
-              <feColorMatrix
-                in="noise"
-                type="matrix"
-                values="0.35 0.28 0.22 0 0.4  0.32 0.28 0.24 0 0.38  0.28 0.24 0.22 0 0.36  0 0 0 0.18 0"
-                result="tinted"
-              />
-            </filter>
-            <rect width="100%" height="100%" fill="transparent" filter="url(#album-cover-noise)" />
-          </svg>
+          {/* Grain overlay: separate layer so opacity makes it visible on cream */}
+          <div
+            className="absolute inset-0 pointer-events-none rounded-tr-sm rounded-br-sm opacity-5"
+            style={{
+              backgroundImage: 'url(/bitwise%20overlay.png)',
+              backgroundRepeat: 'no-repeat',
+              backgroundSize: 'auto',
+              mixBlendMode: 'multiply',
+            }}
+            aria-hidden
+          />
           {/* Kota logo (debossed) */}
           <div className="relative z-10 flex items-center gap-2 mb-10">
             <img
-              src="/Symbol purple.svg"
+              src="/Purple symbol & dark text.svg"
               alt=""
               className="w-6 h-5 opacity-60"
               style={{ filter: 'brightness(0.75) contrast(0.85)' }}
@@ -79,7 +76,7 @@ export default function AlbumCover({ coverImagePath = DEFAULT_COVER_IMAGE, onOpe
             {/* Inset shadow overlay so it appears on top of the image */}
             <div
               className="absolute inset-0 pointer-events-none"
-              style={{ boxShadow: 'inset 0 0 4px 1px rgba(0, 0, 0, 0.25)' }}
+              style={{ boxShadow: 'inset 0 0 4px 1px rgba(0, 0, 0, 0.15)' }}
               aria-hidden
             />
           </div>
