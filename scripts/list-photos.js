@@ -52,28 +52,49 @@ function optimizeImages() {
   console.log('Done optimizing.')
 }
 
-function getImagePaths(dir, basePath = '') {
+function getImageEntries(dir, basePath = '') {
   const entries = readdirSync(dir, { withFileTypes: true })
-  const paths = []
+  const result = []
 
   for (const entry of entries) {
     const fullPath = join(dir, entry.name)
     const relativePath = basePath ? `${basePath}/${entry.name}` : entry.name
 
     if (entry.isDirectory()) {
-      paths.push(...getImagePaths(fullPath, relativePath))
+      result.push(...getImageEntries(fullPath, relativePath))
     } else if (entry.isFile()) {
       const ext = entry.name.slice(entry.name.lastIndexOf('.')).toLowerCase()
       if (IMAGE_EXTENSIONS.has(ext)) {
-        paths.push(`/photos/${relativePath}`)
+        result.push({ path: `/photos/${relativePath}`, fullPath })
       }
     }
   }
 
-  return paths.sort()
+  return result.sort((a, b) => a.path.localeCompare(b.path))
+}
+
+function getImageDimensions(fullPath) {
+  try {
+    const out = execSync(`magick identify -format "%w %h" "${fullPath}"`, {
+      encoding: 'utf-8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    }).trim()
+    const [w, h] = out.split(/\s+/).map(Number)
+    if (Number.isFinite(w) && Number.isFinite(h) && w > 0 && h > 0) {
+      return { width: w, height: h }
+    }
+  } catch (_) {
+    // ignore: leave dimensions undefined
+  }
+  return {}
 }
 
 optimizeImages()
-const imagePaths = getImagePaths(photosDir)
-writeFileSync(outputPath, JSON.stringify(imagePaths, null, 2), 'utf-8')
-console.log(`Found ${imagePaths.length} images, wrote to src/photoPaths.json`)
+const entries = getImageEntries(photosDir)
+console.log(`Reading dimensions for ${entries.length} images...`)
+const imageList = entries.map(({ path, fullPath }) => {
+  const { width, height } = getImageDimensions(fullPath)
+  return { path, ...(width && height ? { width, height } : {}) }
+})
+writeFileSync(outputPath, JSON.stringify(imageList, null, 2), 'utf-8')
+console.log(`Wrote ${imageList.length} images to src/photoPaths.json`)

@@ -1,65 +1,292 @@
 [
-  "/photos/A189EDB4-05C3-4B6C-B628-A8F667FAA0BB.jpg",
-  "/photos/IMG_5423.jpeg",
-  "/photos/IMG_5424.jpeg",
-  "/photos/IMG_5425.jpeg",
-  "/photos/IMG_5426.jpeg",
-  "/photos/IMG_5427.jpeg",
-  "/photos/IMG_5429.jpeg",
-  "/photos/IMG_5430.jpeg",
-  "/photos/IMG_5431.jpeg",
-  "/photos/IMG_5432.jpeg",
-  "/photos/IMG_5433.jpeg",
-  "/photos/IMG_5436.jpeg",
-  "/photos/IMG_5442.jpeg",
-  "/photos/IMG_5452.jpeg",
-  "/photos/IMG_5454.jpeg",
-  "/photos/IMG_5456.jpeg",
-  "/photos/IMG_5458.jpeg",
-  "/photos/IMG_5461.jpeg",
-  "/photos/IMG_5463.jpeg",
-  "/photos/IMG_5470.jpeg",
-  "/photos/IMG_5471.jpeg",
-  "/photos/IMG_5472.jpeg",
-  "/photos/IMG_5473.jpeg",
-  "/photos/IMG_5478.jpeg",
-  "/photos/IMG_5481.jpeg",
-  "/photos/IMG_5485.jpeg",
-  "/photos/IMG_5488.jpeg",
-  "/photos/IMG_5489.jpeg",
-  "/photos/IMG_5491.jpeg",
-  "/photos/IMG_5493.jpeg",
-  "/photos/IMG_5494.jpeg",
-  "/photos/IMG_5498.jpeg",
-  "/photos/IMG_5499.jpeg",
-  "/photos/IMG_5500.jpeg",
-  "/photos/IMG_5504.jpeg",
-  "/photos/IMG_5515.jpeg",
-  "/photos/IMG_5518.jpeg",
-  "/photos/IMG_5524.jpeg",
-  "/photos/IMG_5525.jpeg",
-  "/photos/IMG_5526.jpeg",
-  "/photos/IMG_5531.jpeg",
-  "/photos/IMG_5532.jpeg",
-  "/photos/IMG_5534.jpeg",
-  "/photos/IMG_5537.jpeg",
-  "/photos/IMG_5543.jpeg",
-  "/photos/IMG_5548.jpeg",
-  "/photos/IMG_5549.jpeg",
-  "/photos/IMG_5550.jpeg",
-  "/photos/IMG_5553.jpeg",
-  "/photos/IMG_5554.jpeg",
-  "/photos/IMG_5556.jpeg",
-  "/photos/IMG_5557.jpeg",
-  "/photos/IMG_5561.jpeg",
-  "/photos/IMG_5562.jpeg",
-  "/photos/IMG_5563.jpeg",
-  "/photos/IMG_5564.jpeg",
-  "/photos/IMG_5565.jpeg",
-  "/photos/IMG_5570.jpeg",
-  "/photos/IMG_5571.jpeg",
-  "/photos/IMG_5578.jpeg",
-  "/photos/IMG_5579.jpeg",
-  "/photos/IMG_5580.jpeg",
-  "/photos/IMG_5585.jpeg"
+  {
+    "path": "/photos/001.jpg",
+    "width": 2048,
+    "height": 1536
+  },
+  {
+    "path": "/photos/002.jpg",
+    "width": 2048,
+    "height": 1152
+  },
+  {
+    "path": "/photos/003.jpg",
+    "width": 1536,
+    "height": 2048
+  },
+  {
+    "path": "/photos/004.jpg",
+    "width": 2048,
+    "height": 1536
+  },
+  {
+    "path": "/photos/005.jpg",
+    "width": 1536,
+    "height": 2048
+  },
+  {
+    "path": "/photos/006.jpg",
+    "width": 2048,
+    "height": 1365
+  },
+  {
+    "path": "/photos/007.jpg",
+    "width": 2048,
+    "height": 1365
+  },
+  {
+    "path": "/photos/008.jpg",
+    "width": 1536,
+    "height": 2048
+  },
+  {
+    "path": "/photos/009.jpg",
+    "width": 2048,
+    "height": 1365
+  },
+  {
+    "path": "/photos/011.jpg",
+    "width": 2048,
+    "height": 1365
+  },
+  {
+    "path": "/photos/013.jpg",
+    "width": 2048,
+    "height": 1365
+  },
+  {
+    "path": "/photos/015.jpg",
+    "width": 2048,
+    "height": 1365
+  },
+  {
+    "path": "/photos/016.jpg",
+    "width": 1536,
+    "height": 2048
+  },
+  {
+    "path": "/photos/018.jpg",
+    "width": 1536,
+    "height": 2048
+  },
+  {
+    "path": "/photos/019.jpg",
+    "width": 2048,
+    "height": 1536
+  },
+  {
+    "path": "/photos/020.jpg",
+    "width": 1536,
+    "height": 2048
+  },
+  {
+    "path": "/photos/021.jpg",
+    "width": 2048,
+    "height": 1536
+  },
+  {
+    "path": "/photos/022.jpg",
+    "width": 1536,
+    "height": 2048
+  },
+  {
+    "path": "/photos/023.jpg",
+    "width": 2048,
+    "height": 1365
+  },
+  {
+    "path": "/photos/024.jpg",
+    "width": 1536,
+    "height": 2048
+  },
+  {
+    "path": "/photos/025.jpg",
+    "width": 2048,
+    "height": 1365
+  },
+  {
+    "path": "/photos/026.jpg",
+    "width": 1536,
+    "height": 2048
+  },
+  {
+    "path": "/photos/027.jpg",
+    "width": 2048,
+    "height": 1365
+  },
+  {
+    "path": "/photos/028.jpg",
+    "width": 1536,
+    "height": 2048
+  },
+  {
+    "path": "/photos/029.jpg",
+    "width": 2048,
+    "height": 1365
+  },
+  {
+    "path": "/photos/030.jpg",
+    "width": 1536,
+    "height": 2048
+  },
+  {
+    "path": "/photos/031.jpg",
+    "width": 2048,
+    "height": 1365
+  },
+  {
+    "path": "/photos/032.jpg",
+    "width": 1536,
+    "height": 2048
+  },
+  {
+    "path": "/photos/033.jpg",
+    "width": 2048,
+    "height": 1365
+  },
+  {
+    "path": "/photos/034.jpg",
+    "width": 1536,
+    "height": 2048
+  },
+  {
+    "path": "/photos/035.jpg",
+    "width": 2048,
+    "height": 1365
+  },
+  {
+    "path": "/photos/036.jpg",
+    "width": 1536,
+    "height": 2048
+  },
+  {
+    "path": "/photos/037.jpg",
+    "width": 2048,
+    "height": 1365
+  },
+  {
+    "path": "/photos/038.jpg",
+    "width": 1365,
+    "height": 2048
+  },
+  {
+    "path": "/photos/039.jpg",
+    "width": 2048,
+    "height": 1536
+  },
+  {
+    "path": "/photos/040.jpg",
+    "width": 1536,
+    "height": 2048
+  },
+  {
+    "path": "/photos/041.jpg",
+    "width": 1536,
+    "height": 2048
+  },
+  {
+    "path": "/photos/042.jpg",
+    "width": 1536,
+    "height": 2048
+  },
+  {
+    "path": "/photos/043.jpg",
+    "width": 1536,
+    "height": 2048
+  },
+  {
+    "path": "/photos/044.jpg",
+    "width": 1536,
+    "height": 2048
+  },
+  {
+    "path": "/photos/045.jpg",
+    "width": 1536,
+    "height": 2048
+  },
+  {
+    "path": "/photos/046.jpg",
+    "width": 1536,
+    "height": 2048
+  },
+  {
+    "path": "/photos/047.jpg",
+    "width": 1536,
+    "height": 2048
+  },
+  {
+    "path": "/photos/048.jpg",
+    "width": 1536,
+    "height": 2048
+  },
+  {
+    "path": "/photos/049.jpg",
+    "width": 1536,
+    "height": 2048
+  },
+  {
+    "path": "/photos/050.jpg",
+    "width": 1536,
+    "height": 2048
+  },
+  {
+    "path": "/photos/051.jpg",
+    "width": 1536,
+    "height": 2048
+  },
+  {
+    "path": "/photos/052.jpg",
+    "width": 1365,
+    "height": 2048
+  },
+  {
+    "path": "/photos/053.jpg",
+    "width": 1366,
+    "height": 2048
+  },
+  {
+    "path": "/photos/054.jpg",
+    "width": 1365,
+    "height": 2048
+  },
+  {
+    "path": "/photos/055.jpg",
+    "width": 1365,
+    "height": 2048
+  },
+  {
+    "path": "/photos/1.jpeg",
+    "width": 1536,
+    "height": 2048
+  },
+  {
+    "path": "/photos/2.jpg",
+    "width": 2048,
+    "height": 1152
+  },
+  {
+    "path": "/photos/3.jpg",
+    "width": 1365,
+    "height": 2048
+  },
+  {
+    "path": "/photos/4.jpg",
+    "width": 1365,
+    "height": 2048
+  },
+  {
+    "path": "/photos/5.JPG",
+    "width": 2048,
+    "height": 1536
+  },
+  {
+    "path": "/photos/6.jpg",
+    "width": 2048,
+    "height": 1365
+  },
+  {
+    "path": "/photos/8.jpeg",
+    "width": 1536,
+    "height": 2048
+  }
 ]

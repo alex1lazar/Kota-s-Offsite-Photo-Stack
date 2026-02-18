@@ -1,7 +1,11 @@
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useMemo } from 'react'
 import { AnimatePresence, motion as Motion } from 'framer-motion'
 
+// Support both string[] and { path, width?, height? }[]
+const getPaths = (images) => images.map((img) => (typeof img === 'string' ? img : img.path))
+
 export default function PhotoGrid({ images = [] }) {
+  const paths = useMemo(() => getPaths(images), [images])
   const [selectedImage, setSelectedImage] = useState(null)
 
   const openOverlay = useCallback((src) => setSelectedImage(src), [])
@@ -16,7 +20,7 @@ export default function PhotoGrid({ images = [] }) {
     return () => window.removeEventListener('keydown', handleEscape)
   }, [selectedImage, closeOverlay])
 
-  if (!images.length) {
+  if (!paths.length) {
     return (
       <div className="flex items-center justify-center min-h-[50vh] text-gray-500">
         No photos to display.
@@ -44,14 +48,14 @@ export default function PhotoGrid({ images = [] }) {
 
   return (
     <>
-      <div className="w-full max-w-[65vw] max-h-[80vh] relative overflow-auto">
+      <div className="w-full max-h-[80vh] px-4 md:px-0 md:max-w-[65vw] relative overflow-auto hide-scrollbar">
         <Motion.div
-          className="w-full p-4 pb-4 grid grid-cols-3 sm:grid-cols-4 gap-x-1 gap-y-2"
+          className="w-full p-4 pb-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-x-1 gap-y-2"
           variants={container}
           initial="hidden"
           animate="visible"
         >
-          {images.map((src) => (
+          {paths.map((src) => (
             <Motion.button
               type="button"
               key={src}

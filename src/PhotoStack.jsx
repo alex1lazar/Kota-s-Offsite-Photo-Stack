@@ -2,6 +2,10 @@ import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { AnimatePresence, motion as Motion } from 'framer-motion'
 
 const STACK_SIZE = 11 // 1 current + 10 behind
+
+// Min ms between wheel-triggered steps (tune for trackpad/MX3: higher = slower)
+const WHEEL_THROTTLE_MS = 200
+
 // Slight tilt angles (degrees) so layers have a mix of left/right tilt
 const ROTATION_ANGLES = [-3, -2, -1, 0, 1, 2, 3]
 
@@ -39,6 +43,9 @@ function makeCardTransform(src) {
 // Fallback only before image dimensions are known (avoids layout jump)
 const FALLBACK_ASPECT_RATIO = 1
 
+// Scale factor for portrait images (height > width). 1 = no change; 1.2 = 20% larger.
+const PORTRAIT_SCALE = 1.15
+
 const styles = {
   stack: {
     cursor: 'pointer',
@@ -72,11 +79,11 @@ const styles = {
     alignItems: 'center',
     justifyContent: 'center',
     gap: '1rem',
-    marginTop: '4rem',
+    marginTop: '6rem',
     padding: '0 1rem',
     boxSizing: 'border-box',
   },
-  hint: { margin: '4rem', fontSize: '0.9rem', color: '#6b6b6b' },
+  hint: { margin: '6rem', fontSize: '0.9rem', color: '#6b6b6b' },
   count: { margin: 0, fontSize: '0.85rem', color: '#6b6b6b', fontVariantNumeric: 'tabular-nums' },
   cardImg: {
     width: '100%',
@@ -99,14 +106,35 @@ function cardShadow(stackPos) {
   return `0 1px 3px rgba(0,0,0,${b}), 0 4px 14px rgba(0,0,0,${c})`
 }
 
+// Normalize to { path, width?, height? }[] (supports legacy string[])
+function normalizeImages(images) {
+  return images.map((img) => (typeof img === 'string' ? { path: img } : img))
+}
+
 export default function PhotoStack({ images = [] }) {
+  const list = useMemo(() => normalizeImages(images), [images])
   const [currentIndex, setCurrentIndex] = useState(0)
   const [navDir, setNavDir] = useState(1) // 1 = next, -1 = prev (used for exit rotate)
   const [aspectRatios, setAspectRatios] = useState({})
   const [pileSize, setPileSize] = useState({ w: 0, h: 0 })
   const [hoverCard, setHoverCard] = useState(null)
   const pileRef = useRef(null)
-  const imagesLen = images.length
+  const lastWheelStepRef = useRef(0)
+  const touchStartRef = useRef({ x: 0, y: 0 })
+  const imagesLen = list.length
+
+  const SWIPE_THRESHOLD = 50
+
+  const getAspectRatio = useCallback(
+    (item) => {
+      if (item.width != null && item.height != null && item.height > 0) {
+        return item.width / item.height
+      }
+      return aspectRatios[item.path] ?? FALLBACK_ASPECT_RATIO
+    },
+    [aspectRatios]
+  )
+
   useEffect(() => {
     const el = pileRef.current
     if (!el) return
@@ -120,11 +148,11 @@ export default function PhotoStack({ images = [] }) {
   const stackSize = Math.min(STACK_SIZE, imagesLen)
   const cardTransformsBySrc = useMemo(() => {
     const map = new Map()
-    for (const src of images) {
-      map.set(src, makeCardTransform(src))
+    for (const item of list) {
+      map.set(item.path, makeCardTransform(item.path))
     }
     return map
-  }, [images])
+  }, [list])
 
   const handleImageLoad = useCallback((e) => {
     const img = e.target
@@ -157,6 +185,9 @@ export default function PhotoStack({ images = [] }) {
     (e) => {
       if (!imagesLen) return
       e.preventDefault()
+      const now = Date.now()
+      if (now - lastWheelStepRef.current < WHEEL_THROTTLE_MS) return
+      lastWheelStepRef.current = now
       if (e.deltaY > 0) {
         cycleToNext()
       } else if (e.deltaY < 0) {
@@ -171,6 +202,30 @@ export default function PhotoStack({ images = [] }) {
     window.addEventListener('wheel', handleWheel, { passive: false })
     return () => window.removeEventListener('wheel', handleWheel)
   }, [imagesLen, handleWheel])
+
+  const handleTouchStart = useCallback((e) => {
+    const t = e.touches[0]
+    if (t) touchStartRef.current = { x: t.clientX, y: t.clientY }
+  }, [])
+
+  const handleTouchEnd = useCallback(
+    (e) => {
+      if (!imagesLen) return
+      const t = e.changedTouches[0]
+      if (!t) return
+      const { x: startX, y: startY } = touchStartRef.current
+      const deltaX = t.clientX - startX
+      const deltaY = t.clientY - startY
+      if (Math.abs(deltaX) <= Math.abs(deltaY) || Math.abs(deltaX) < SWIPE_THRESHOLD) return
+      const now = Date.now()
+      if (now - lastWheelStepRef.current < WHEEL_THROTTLE_MS) return
+      lastWheelStepRef.current = now
+      e.preventDefault()
+      if (deltaX < 0) cycleToNext()
+      else cycleToPrev()
+    },
+    [imagesLen, cycleToNext, cycleToPrev]
+  )
 
   // Keyboard navigation: left/right arrow keys
   useEffect(() => {
@@ -199,31 +254,44 @@ export default function PhotoStack({ images = [] }) {
   const visibleImages = []
   for (let i = 0; i < stackSize; i++) {
     const imageIndex = (currentIndex + i) % imagesLen
-    visibleImages.push({ src: images[imageIndex], imageIndex, stackPosition: i })
+    const item = list[imageIndex]
+    visibleImages.push({ src: item.path, item, imageIndex, stackPosition: i })
   }
 
   const top = visibleImages[0]
   const rest = visibleImages.slice(1)
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', minHeight: '100%' }}>
-      <div style={styles.stack} onClick={cycleToNext}>
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', minHeight: '100%', height: '100%' }}>
+      <div
+        style={{ ...styles.stack, flex: 1, minHeight: 0 }}
+        onClick={cycleToNext}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+        role="button"
+        tabIndex={0}
+        aria-label="Next photo (swipe or scroll)"
+      >
       <p style={styles.hint}>Scroll, click, or use arrows to navigate</p>
         <div
           ref={pileRef}
+          className="w-full max-w-[90vw] max-h-[60vh] md:max-w-[65vw] md:max-h-[50vh]"
           style={{
             ...styles.pile,
             width: '100%',
-            height: '100%',
-            maxWidth: '65vw',
-            maxHeight: '50vh',
+            flex: 1,
+            minHeight: 'min(55vh, 280px)',
           }}
         >
-          {rest.map(({ src, imageIndex, stackPosition }) => {
-            const ar = aspectRatios[src] ?? FALLBACK_ASPECT_RATIO
+          {rest.map(({ src, item, imageIndex, stackPosition }) => {
+            const ar = getAspectRatio(item)
             const { w, h } = pileSize
-            const cardW = w && h ? Math.min(w, h * ar) : '100%'
-            const cardH = w && h ? Math.min(h, w / ar) : '100%'
+            let cardW = w && h ? Math.min(w, h * ar) : '100%'
+            let cardH = w && h ? Math.min(h, w / ar) : '100%'
+            if (typeof cardW === 'number' && ar < 1) {
+              cardW *= PORTRAIT_SCALE
+              cardH *= PORTRAIT_SCALE
+            }
             const t = cardTransformsBySrc.get(src) ?? { offsetX: 0, offsetY: 0, rotationDeg: 0 }
             const isHover = hoverCard === stackPosition
             return (
@@ -263,11 +331,15 @@ export default function PhotoStack({ images = [] }) {
 
           <AnimatePresence initial={false}>
             {top ? (() => {
-              const { src, imageIndex } = top
-              const ar = aspectRatios[src] ?? FALLBACK_ASPECT_RATIO
+              const { src, item, imageIndex } = top
+              const ar = getAspectRatio(item)
               const { w, h } = pileSize
-              const cardW = w && h ? Math.min(w, h * ar) : '100%'
-              const cardH = w && h ? Math.min(h, w / ar) : '100%'
+              let cardW = w && h ? Math.min(w, h * ar) : '100%'
+              let cardH = w && h ? Math.min(h, w / ar) : '100%'
+              if (typeof cardW === 'number' && ar < 1) {
+                cardW *= PORTRAIT_SCALE
+                cardH *= PORTRAIT_SCALE
+              }
               const baseRotation = cardTransformsBySrc.get(src)?.rotationDeg ?? 0
               const isHover = hoverCard === 0
               return (
@@ -331,7 +403,7 @@ export default function PhotoStack({ images = [] }) {
         </div>
         <div style={styles.meta}>
         <p style={styles.count} aria-live="polite">
-          {currentIndex + 1} of {images.length}
+          {currentIndex + 1} of {list.length}
         </p>
         </div>
       </div>
