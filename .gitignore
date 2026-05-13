@@ -12,6 +12,11 @@ dist
 dist-ssr
 *.local
 
+# Agent / Cursor skills (local tooling, not app source)
+.agents/
+.cursor/skills-cursor/
+skills-lock.json
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
