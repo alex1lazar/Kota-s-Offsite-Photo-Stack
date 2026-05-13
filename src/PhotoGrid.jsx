@@ -4,6 +4,25 @@ import { AnimatePresence, motion as Motion } from 'framer-motion'
 // Support both string[] and { path, width?, height? }[]
 const getPaths = (images) => images.map((img) => (typeof img === 'string' ? img : img.path))
 
+// Hoist animation variants so they are not recreated every render (rendering-hoist-jsx)
+const GRID_CONTAINER_VARIANTS = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.04,
+      delayChildren: 0.08,
+    },
+  },
+}
+const GRID_ITEM_VARIANTS = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { duration: 0.5, ease: 'easeOut' },
+  },
+}
+
 export default function PhotoGrid({ images = [] }) {
   const paths = useMemo(() => getPaths(images), [images])
   const [selectedImage, setSelectedImage] = useState(null)
@@ -28,30 +47,12 @@ export default function PhotoGrid({ images = [] }) {
     )
   }
 
-  const container = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.04,
-        delayChildren: 0.08,
-      },
-    },
-  }
-  const item = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { duration: 0.5, ease: 'easeOut' },
-    },
-  }
-
   return (
     <>
       <div className="w-full max-h-[80vh] px-4 md:px-0 md:max-w-[65vw] relative overflow-auto hide-scrollbar">
         <Motion.div
           className="w-full p-4 pb-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-x-1 gap-y-2"
-          variants={container}
+          variants={GRID_CONTAINER_VARIANTS}
           initial="hidden"
           animate="visible"
         >
@@ -59,9 +60,9 @@ export default function PhotoGrid({ images = [] }) {
             <Motion.button
               type="button"
               key={src}
-              variants={item}
+              variants={GRID_ITEM_VARIANTS}
               onClick={() => openOverlay(src)}
-              className="block w-full overflow-hidden bg-[#1a1a1a] focus:outline-none focus:ring-2 focus:ring-[#7A43E8]"
+              className="photo-grid-item block w-full overflow-hidden bg-[#1a1a1a] focus:outline-none focus:ring-2 focus:ring-[#7A43E8]"
               style={{
                 aspectRatio: '4/3',
                 minHeight: 140,

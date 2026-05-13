@@ -251,12 +251,15 @@ export default function PhotoStack({ images = [] }) {
     )
   }
 
-  const visibleImages = []
-  for (let i = 0; i < stackSize; i++) {
-    const imageIndex = (currentIndex + i) % imagesLen
-    const item = list[imageIndex]
-    visibleImages.push({ src: item.path, item, imageIndex, stackPosition: i })
-  }
+  const visibleImages = useMemo(() => {
+    const out = []
+    for (let i = 0; i < stackSize; i++) {
+      const imageIndex = (currentIndex + i) % imagesLen
+      const item = list[imageIndex]
+      out.push({ src: item.path, item, imageIndex, stackPosition: i })
+    }
+    return out
+  }, [currentIndex, stackSize, imagesLen, list])
 
   const top = visibleImages[0]
   const rest = visibleImages.slice(1)
@@ -309,7 +312,7 @@ export default function PhotoStack({ images = [] }) {
                   rotate: `${t.rotationDeg}deg`,
                   borderRadius: CARD_RADIUS,
                   overflow: 'hidden',
-                  boxShadow: cardShadow(stackPosition, isHover),
+                  boxShadow: cardShadow(stackPosition),
                   background: '#1a1a1a',
                   transition: 'box-shadow 0.35s ease',
                   userSelect: 'none',
@@ -356,7 +359,7 @@ export default function PhotoStack({ images = [] }) {
                     transformOrigin: 'center center',
                     borderRadius: CARD_RADIUS,
                     overflow: 'hidden',
-                    boxShadow: cardShadow(0, isHover),
+                    boxShadow: cardShadow(0),
                     background: '#1a1a1a',
                     transition: 'box-shadow 0.35s ease',
                     userSelect: 'none',

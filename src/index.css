@@ -53,4 +53,10 @@
   .hide-scrollbar::-webkit-scrollbar {
     display: none;
   }
+
+  /* Defer off-screen grid item rendering for long lists (content-visibility) */
+  .photo-grid-item {
+    content-visibility: auto;
+    contain-intrinsic-size: 0 140px;
+  }
 }
